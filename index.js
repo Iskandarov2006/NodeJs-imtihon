@@ -7,6 +7,27 @@ app.get('/admins', (req, res) => {
     res.json(json)
 })
 
+app.post('/admin', (req, res) => {
+    let data = ''
+    req.on('data', (chunk) => {
+        data += chunk
+    })
+    req.on('end', () => {
+        let user = JSON.parse(data)
+        let users = fs.readFileSync("./database/admins.json", 'utf-8')
+        users = JSON.parse(users)
+        users.push(user)
+
+
+        // users.map(i => i.password = 0) // sha256 ishlatish uchun joy
+
+
+        fs.writeFileSync('./database/admins.json', JSON.stringify(users, null, 4))
+        res.writeHead(201)
+        res.end('qoshildi')
+    })
+})
+
 // admins ===========================================================
 
 
@@ -22,7 +43,7 @@ app.get('/categories', (req, res) => {
     res.json(subCategories)
 })
 
-app.post('/categories', (req, res) =>  {
+app.post('/categories', (req, res) => {
     let data = ''
     req.on('data', (chunk) => {
         data += chunk
@@ -38,12 +59,21 @@ app.post('/categories', (req, res) =>  {
         res.end('qoshildi')
     })
 })
+
 app.get('/categories/:id', (req, res) => {
     let subCategory = read('categories')
     let a = subCategory.find(i => i.categoriy_id == req.params.id)
     res.json(a)
 })
 
+app.delete('/categories/:id', (req, res) => {
+    let categories = read('categories')
+    let a = categories.filter(i => i.categoriy_id != req.params.id)
+
+    write('categories', a)
+
+    res.json(a)
+})
 
 
 
@@ -77,6 +107,15 @@ app.post('/subcategories', (req, res) => {
         res.writeHead(201)
         res.end('qoshildi')
     })
+})
+
+app.delete('/subcategories/:id', (req, res) => {
+    let subcategories = read('subcategories')
+    let a = subcategories.filter(i => i.sub_category_id != req.params.id)
+
+    write('subcategories', a)
+
+    res.json(a)
 })
 
 
@@ -116,6 +155,19 @@ app.get('/products/:id', (req, res) => {
     let a = subCategory.find(i => i.product_id == req.params.id)
     res.json(a)
 })
+
+app.delete('/ProductDelete/:id', (req, res) => {
+    let product = read('products')
+    let a = product.filter(i => i.product_id != req.params.id)
+
+    write('products', a)
+
+    res.json(a)
+})
+
+
+
+
 
 // =======================================================================
 
